@@ -1,21 +1,31 @@
 "use client";
 
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import {
+  CssBaseline,
+  ThemeProvider,
+} from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { Provider } from "react-redux";
 
+import { store } from "@/store";
 import { theme } from "@/theme";
 
-type AppProvidersProps = {
+interface AppProvidersProps {
   children: React.ReactNode;
-};
+}
 
-export function AppProviders({ children }: AppProvidersProps) {
+export function AppProviders({
+  children,
+}: AppProvidersProps) {
   return (
     <AppRouterCacheProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+
+          {children}
+        </ThemeProvider>
+      </Provider>
     </AppRouterCacheProvider>
   );
 }
