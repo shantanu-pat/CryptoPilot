@@ -8,8 +8,10 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useGetCoinHistoryQuery } from "@/services/marketApi";
-import { useGetMarketsQuery } from "@/services/marketApi";
+import {
+  useGetCoinHistoryQuery,
+  useGetMarketsQuery,
+} from "@/services/marketApi";
 import { useAppSelector } from "@/store/hooks";
 
 export function StrategyResult() {
@@ -21,24 +23,24 @@ export function StrategyResult() {
     useGetMarketsQuery();
 
   const daysAgo = Math.max(
-  1,
-  Math.ceil(
-    (Date.now() -
-      new Date(
-        strategy.buyDate
-      ).getTime()) /
-      (1000 * 60 * 60 * 24)
-  )
-);
+    1,
+    Math.ceil(
+      (Date.now() -
+        new Date(
+          strategy.buyDate
+        ).getTime()) /
+        (1000 * 60 * 60 * 24)
+    )
+  );
 
-const {
-  data: history,
-  isLoading,
-  isError,
-} = useGetCoinHistoryQuery({
-  id: strategy.coinId,
-  days: Math.min(daysAgo, 365),
-});
+  const {
+    data: history,
+    isLoading,
+    isError,
+  } = useGetCoinHistoryQuery({
+    id: strategy.coinId,
+    days: Math.min(daysAgo, 365),
+  });
 
   if (!strategy.simulated) {
     return (
@@ -59,39 +61,45 @@ const {
           mt={2}
           color="text.secondary"
         >
-          Configure your investment
-          and click Run Simulation.
+          Configure your investment and click Run Simulation.
         </Typography>
       </Paper>
     );
   }
 
   if (isLoading) {
-  return (
-    <Alert severity="info">
-      Running simulation...
-    </Alert>
-  );
-}
+    return (
+      <Alert severity="info">
+        Running simulation...
+      </Alert>
+    );
+  }
 
-if (
-  isError ||
-  !markets ||
-  !history
-) {
-  return (
-    <Alert severity="error">
-      Unable to load historical data.
-    </Alert>
-  );
-}
+  if (
+    isError ||
+    !markets ||
+    !history ||
+    !history.prices ||
+    history.prices.length === 0
+  ) {
+    return (
+      <Alert severity="error">
+        Unable to load historical data.
+      </Alert>
+    );
+  }
 
   const market = markets.find(
     (c) => c.id === strategy.coinId
   );
 
-  if (!market)
-    return null;
+  if (!market) {
+    return (
+      <Alert severity="error">
+        Coin not found.
+      </Alert>
+    );
+  }
 
   const targetDate =
     new Date(
@@ -105,12 +113,10 @@ if (
     (price) => {
       if (
         Math.abs(
-          price[0] -
-            targetDate
+          price[0] - targetDate
         ) <
         Math.abs(
-          closest[0] -
-            targetDate
+          closest[0] - targetDate
         )
       ) {
         closest = price;
@@ -119,24 +125,30 @@ if (
   );
 
   const buyPrice =
-    closest[1];
+    closest?.[1] ?? 0;
+
+  const currentPrice =
+    market.current_price ?? 0;
 
   const quantity =
-    strategy.amount /
-    buyPrice;
+    buyPrice > 0
+      ? strategy.amount /
+        buyPrice
+      : 0;
 
   const currentValue =
-    quantity *
-    market.current_price;
+    quantity * currentPrice;
 
   const profit =
     currentValue -
     strategy.amount;
 
   const roi =
-    (profit /
-      strategy.amount) *
-    100;
+    strategy.amount > 0
+      ? (profit /
+          strategy.amount) *
+        100
+      : 0;
 
   return (
     <Paper
@@ -179,7 +191,9 @@ if (
             </Typography>
 
             <Typography variant="h6">
-              {quantity.toFixed(6)}
+              {quantity.toFixed(
+                6
+              )}
             </Typography>
           </Stack>
         </Grid>
@@ -192,7 +206,7 @@ if (
 
             <Typography variant="h6">
               $
-              {market.current_price.toLocaleString()}
+              {currentPrice.toLocaleString()}
             </Typography>
           </Stack>
         </Grid>

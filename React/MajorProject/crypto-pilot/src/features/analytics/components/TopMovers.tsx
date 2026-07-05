@@ -12,24 +12,20 @@ import { useGetMarketsQuery } from "@/services/marketApi";
 import { TableSkeleton } from "@/components/skeletons";
 
 export function TopMovers() {
-  const { data } =
-    useGetMarketsQuery();
+  const { data } = useGetMarketsQuery();
 
- 
-
-if (!data) {
-  return <TableSkeleton />;
-}
+  if (!data || data.length === 0) {
+    return <TableSkeleton />;
+  }
 
   const sorted = [...data].sort(
     (a, b) =>
-      b.price_change_percentage_24h -
-      a.price_change_percentage_24h
+      (b.price_change_percentage_24h ?? Number.NEGATIVE_INFINITY) -
+      (a.price_change_percentage_24h ?? Number.NEGATIVE_INFINITY)
   );
 
   const gainer = sorted[0];
-  const loser =
-    sorted[sorted.length - 1];
+  const loser = sorted[sorted.length - 1];
 
   return (
     <Paper
@@ -47,8 +43,11 @@ if (!data) {
       </Typography>
 
       <Stack spacing={3}>
-        {[gainer, loser].map(
-          (coin) => (
+        {[gainer, loser].map((coin) => {
+          const priceChange =
+            coin.price_change_percentage_24h ?? 0;
+
+          return (
             <Stack
               key={coin.id}
               direction="row"
@@ -60,14 +59,10 @@ if (!data) {
                 spacing={2}
                 alignItems="center"
               >
-                <Avatar
-                  src={coin.image}
-                />
+                <Avatar src={coin.image} />
 
                 <div>
-                  <Typography
-                    fontWeight={700}
-                  >
+                  <Typography fontWeight={700}>
                     {coin.name}
                   </Typography>
 
@@ -82,18 +77,15 @@ if (!data) {
 
               <Chip
                 color={
-                  coin.price_change_percentage_24h >=
-                  0
+                  priceChange >= 0
                     ? "success"
                     : "error"
                 }
-                label={`${coin.price_change_percentage_24h.toFixed(
-                  2
-                )}%`}
+                label={`${priceChange.toFixed(2)}%`}
               />
             </Stack>
-          )
-        )}
+          );
+        })}
       </Stack>
     </Paper>
   );

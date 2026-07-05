@@ -1,10 +1,21 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+} from "@reduxjs/toolkit/query/react";
 
 import type { Coin } from "@/types/coin";
 
 export interface MarketChartResponse {
   prices: [number, number][];
 }
+
+export type OhlcResponse = [
+  number,
+  number,
+  number,
+  number,
+  number
+][];
 
 export interface TrendingResponse {
   coins: {
@@ -31,27 +42,42 @@ export const marketApi = createApi({
   tagTypes: ["Market"],
 
   endpoints: (builder) => ({
-    getMarkets: builder.query<Coin[], void>({
+    getMarkets: builder.query<
+      Coin[],
+      void
+    >({
       query: () =>
         "/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false",
     }),
 
-   getCoinHistory: builder.query<
-  MarketChartResponse,
-  {
-    id: string;
-    days: number | "max";
-  }
->({
-  query: ({ id, days }) =>
-    `/coins/${id}/market_chart?vs_currency=usd&days=${days}`,
-}),
+    getCoinHistory: builder.query<
+      MarketChartResponse,
+      {
+        id: string;
+        days: number | "max";
+      }
+    >({
+      query: ({ id, days }) =>
+        `/coins/${id}/market_chart?vs_currency=usd&days=${days}`,
+    }),
+
+    getCoinOHLC: builder.query<
+      OhlcResponse,
+      {
+        id: string;
+        days: number;
+      }
+    >({
+      query: ({ id, days }) =>
+        `/coins/${id}/ohlc?vs_currency=usd&days=${days}`,
+    }),
 
     getTrending: builder.query<
       TrendingResponse,
       void
     >({
-      query: () => "/search/trending",
+      query: () =>
+        "/search/trending",
     }),
 
     searchCoins: builder.query<
@@ -74,6 +100,7 @@ export const marketApi = createApi({
 export const {
   useGetMarketsQuery,
   useGetCoinHistoryQuery,
+  useGetCoinOHLCQuery,
   useGetTrendingQuery,
   useSearchCoinsQuery,
 } = marketApi;

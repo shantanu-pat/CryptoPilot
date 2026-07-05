@@ -18,9 +18,8 @@ import { SearchCoins } from "./SearchCoins";
 import { MarketHeader } from "./MarketHeader";
 import { MarketStats } from "./MarketStats";
 import { CoinTable } from "./CoinTable";
-import { TradingChart } from "./charts/TradingChart";
-import { useMarketChart } from "../hooks/useMarketChart";
-
+import { CandlestickChart } from "./charts/CandlestickChart";
+import { useMarketCandles } from "../hooks/useMarketCandles";
 import { ChartSkeleton } from "@/components/skeletons";
 
 export function MarketPage() {
@@ -46,9 +45,9 @@ export function MarketPage() {
     ) ?? data?.[0];
 
   const {
-    chartData,
+    candleData,
     isLoading: chartLoading,
-  } = useMarketChart(
+  } = useMarketCandles(
     coin?.id,
     days
   );
@@ -135,8 +134,8 @@ export function MarketPage() {
         </Stack>
 
         {!chartLoading && (
-          <TradingChart
-            data={chartData}
+          <CandlestickChart
+            data={candleData}
           />
         )}
       </Paper>

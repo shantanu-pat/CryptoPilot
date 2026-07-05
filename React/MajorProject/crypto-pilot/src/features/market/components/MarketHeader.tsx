@@ -24,8 +24,19 @@ export function MarketHeader({
   const [openBuy, setOpenBuy] =
     useState(false);
 
+  // Safe API values
+  const currentPrice =
+    coin.current_price ?? 0;
+
+  const priceChange =
+    coin.price_change_percentage_24h ??
+    0;
+
+  const marketRank =
+    coin.market_cap_rank ?? "-";
+
   const isPositive =
-    coin.price_change_percentage_24h >= 0;
+    priceChange >= 0;
 
   return (
     <>
@@ -69,7 +80,7 @@ export function MarketHeader({
             </Box>
 
             <Chip
-              label={`#${coin.market_cap_rank}`}
+              label={`#${marketRank}`}
               color="primary"
             />
           </Stack>
@@ -95,7 +106,7 @@ export function MarketHeader({
             fontWeight={800}
           >
             $
-            {coin.current_price.toLocaleString()}
+            {currentPrice.toLocaleString()}
           </Typography>
 
           <Chip
@@ -104,7 +115,7 @@ export function MarketHeader({
                 ? "success"
                 : "error"
             }
-            label={`${isPositive ? "+" : ""}${coin.price_change_percentage_24h.toFixed(
+            label={`${isPositive ? "+" : ""}${priceChange.toFixed(
               2
             )}%`}
           />

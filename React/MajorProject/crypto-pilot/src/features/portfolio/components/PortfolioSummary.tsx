@@ -49,7 +49,8 @@ export function PortfolioSummary() {
     (state) => state.portfolio.holdings
   );
 
-  const { data } = useGetMarketsQuery();
+  const { data } =
+    useGetMarketsQuery();
 
   if (!data) return null;
 
@@ -58,17 +59,21 @@ export function PortfolioSummary() {
 
   holdings.forEach((holding) => {
     const market = data.find(
-      (coin) => coin.id === holding.coinId
+      (coin) =>
+        coin.id === holding.coinId
     );
 
     if (!market) return;
+
+    const currentPrice =
+      market.current_price ?? 0;
 
     invested +=
       holding.averagePrice *
       holding.quantity;
 
     current +=
-      market.current_price *
+      currentPrice *
       holding.quantity;
   });
 
@@ -76,40 +81,65 @@ export function PortfolioSummary() {
     current - invested;
 
   const profitPercent =
-    invested === 0
-      ? 0
-      : (profit / invested) * 100;
+    invested > 0
+      ? (profit / invested) * 100
+      : 0;
 
   return (
     <Grid
       container
       spacing={3}
     >
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid
+        size={{ xs: 12, md: 3 }}
+      >
         <SummaryCard
           title="Invested"
-          value={`$${invested.toLocaleString()}`}
+          value={`$${invested.toLocaleString(
+            undefined,
+            {
+              maximumFractionDigits: 2,
+            }
+          )}`}
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid
+        size={{ xs: 12, md: 3 }}
+      >
         <SummaryCard
           title="Current Value"
-          value={`$${current.toLocaleString()}`}
+          value={`$${current.toLocaleString(
+            undefined,
+            {
+              maximumFractionDigits: 2,
+            }
+          )}`}
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid
+        size={{ xs: 12, md: 3 }}
+      >
         <SummaryCard
           title="Profit / Loss"
-          value={`$${profit.toLocaleString()}`}
+          value={`$${profit.toLocaleString(
+            undefined,
+            {
+              maximumFractionDigits: 2,
+            }
+          )}`}
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid
+        size={{ xs: 12, md: 3 }}
+      >
         <SummaryCard
           title="Return"
-          value={`${profitPercent.toFixed(2)}%`}
+          value={`${profitPercent.toFixed(
+            2
+          )}%`}
         />
       </Grid>
     </Grid>

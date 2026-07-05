@@ -18,7 +18,10 @@ import {
 } from "@mui/material";
 
 import type { Coin } from "@/types/coin";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "@/store/hooks";
 import { toggleWatchlist } from "@/store/slices/watchlistSlice";
 
 interface Props {
@@ -47,11 +50,8 @@ export function CoinTable({
       }}
     >
       <Table>
-
         <TableHead>
-
           <TableRow>
-
             <TableCell width={40}></TableCell>
 
             <TableCell>#</TableCell>
@@ -69,27 +69,32 @@ export function CoinTable({
             <TableCell align="right">
               Market Cap
             </TableCell>
-
           </TableRow>
-
         </TableHead>
 
         <TableBody>
-
           {coins.map((coin) => {
+            const watched = watchlist.includes(
+              coin.id
+            );
 
-            const watched =
-              watchlist.includes(
-                coin.id
-              );
+            // Safe API values
+            const currentPrice =
+              coin.current_price ?? 0;
+
+            const priceChange =
+              coin.price_change_percentage_24h ??
+              0;
+
+            const marketCap =
+              coin.market_cap ?? 0;
 
             return (
               <TableRow
                 key={coin.id}
                 hover
                 selected={
-                  coin.id ===
-                  selectedCoin
+                  coin.id === selectedCoin
                 }
                 onClick={() =>
                   onSelect(coin)
@@ -109,13 +114,9 @@ export function CoinTable({
                     );
                   }}
                 >
-                  <IconButton
-                    size="small"
-                  >
+                  <IconButton size="small">
                     {watched ? (
-                      <StarRoundedIcon
-                        color="warning"
-                      />
+                      <StarRoundedIcon color="warning" />
                     ) : (
                       <StarBorderRoundedIcon />
                     )}
@@ -123,20 +124,18 @@ export function CoinTable({
                 </TableCell>
 
                 <TableCell>
-                  {coin.market_cap_rank}
+                  {coin.market_cap_rank ?? "-"}
                 </TableCell>
 
                 <TableCell>
-
                   <Avatar
                     src={coin.image}
+                    alt={coin.name}
                     sx={{
                       width: 34,
                       height: 34,
-                      display:
-                        "inline-flex",
-                      verticalAlign:
-                        "middle",
+                      display: "inline-flex",
+                      verticalAlign: "middle",
                       mr: 2,
                     }}
                   />
@@ -147,44 +146,36 @@ export function CoinTable({
                   >
                     {coin.name}
                   </Typography>
-
                 </TableCell>
 
                 <TableCell align="right">
                   $
-                  {coin.current_price.toLocaleString()}
+                  {currentPrice.toLocaleString()}
                 </TableCell>
 
                 <TableCell align="right">
-
                   <Chip
                     size="small"
                     color={
-                      coin.price_change_percentage_24h >=
-                      0
+                      priceChange >= 0
                         ? "success"
                         : "error"
                     }
-                    label={`${coin.price_change_percentage_24h.toFixed(
+                    label={`${priceChange.toFixed(
                       2
                     )}%`}
                   />
-
                 </TableCell>
 
                 <TableCell align="right">
                   $
-                  {coin.market_cap.toLocaleString()}
+                  {marketCap.toLocaleString()}
                 </TableCell>
-
               </TableRow>
             );
           })}
-
         </TableBody>
-
       </Table>
-
     </TableContainer>
   );
 }
